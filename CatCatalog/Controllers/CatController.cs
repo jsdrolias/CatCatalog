@@ -1,9 +1,15 @@
 using CatCatalog.Abstractions;
+using CatCatalog.Models;
 using CatCatalog.Resources;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CatCatalog.Controllers
 {
+    /// <summary>
+    /// Cat endponits.
+    /// </summary>
     [ApiController]
     [Route("api/cats")]
     public class CatController : ControllerBase
@@ -21,6 +27,8 @@ namespace CatCatalog.Controllers
 
 
         [HttpPost("fetch")]
+        [SwaggerOperation(Summary = "Fetch cats", Description = "Triggers job to fetch 25 cats.")]
+        [SwaggerResponse(202)]
         public async Task<IActionResult> Fetch()
         {
             var job = await _jobService.Add();
@@ -28,7 +36,11 @@ namespace CatCatalog.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CatResponse>> GetCatById(int id)
+        [SwaggerOperation(Summary = "Get cat", Description = "Get a cat by id.")]
+        [SwaggerResponse(200)]
+        [SwaggerResponse(404)]
+        public async Task<ActionResult<CatResponse>> GetCatById(
+            [SwaggerParameter("Cat id")][FromQuery] int id)
         {
             var cat = await _catProcessingService.GetById(id);
 
@@ -43,18 +55,15 @@ namespace CatCatalog.Controllers
         }
 
         [HttpGet()]
-        public async Task<ActionResult<IEnumerable<CatResponse>>> GetAll(int page = 1, int pageSize = 100, string? tag = "")
+        [SwaggerOperation(Summary = "Get all cats", Description = "Retrieves a list of all available cats.")]
+        [SwaggerResponse(200)]
+        public async Task<ActionResult<IEnumerable<CatResponse>>> GetAll(
+            [SwaggerParameter("Page number")] [FromQuery] int? page,
+            [SwaggerParameter("Page size")][FromQuery] int? pageSize,
+            [SwaggerParameter("Cat tag filter (case insensitive)")][FromQuery] string? tag)
         {
-            var cat = await _catProcessingService.GetAll(page, pageSize, tag);
-
-            if (cat == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Ok(cat);
-            }
+            var cats = await _catProcessingService.GetAll(page, pageSize, tag);
+            return Ok(cats);
         }
     }
 }

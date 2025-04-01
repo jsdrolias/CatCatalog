@@ -1,6 +1,7 @@
 using CatCatalog.Abstractions;
 using CatCatalog.Resources;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CatCatalog.Controllers
 {
@@ -17,7 +18,11 @@ namespace CatCatalog.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<JobResponse>> GetJobById(int id)
+        [SwaggerOperation(Summary = "Get job", Description = "Get a job by id.")]
+        [SwaggerResponse(200)]
+        [SwaggerResponse(404)]
+        public async Task<ActionResult<JobResponse>> GetJobById(
+            [SwaggerParameter("Job id")][FromQuery] int id)
         {
             var job = await _jobService.GetById(id);
 
@@ -32,6 +37,8 @@ namespace CatCatalog.Controllers
         }
 
         [HttpGet()]
+        [SwaggerOperation(Summary = "Get all jobs", Description = "Retrieves a list of all jobs.")]
+        [SwaggerResponse(200)]
         public async Task<ActionResult<JobResponse>> GetJobs()
         {
             var jobs = await _jobService.GetAll();

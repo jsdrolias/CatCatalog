@@ -4,6 +4,9 @@ using CatCatalog.Options;
 using CatCatalog.Services;
 using CatCatalog.Workers;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +35,22 @@ builder.Logging.AddDebug();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Cat API",
+        Version = "v1",
+        Description = "An API to manage cats.",
+        Contact = new OpenApiContact
+        {
+            Name = "Your Name",
+            Email = "jsdrolias@gmail.com",
+            Url = new Uri("https://yourwebsite.com")
+        }
+    });
+    c.EnableAnnotations();
+});
 
 builder.Services.AddDbContext<CatDbContext>(
                        options =>
@@ -63,7 +81,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cat API v1");
+    });
 }
 
 app.UseHttpsRedirection();

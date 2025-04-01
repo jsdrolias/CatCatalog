@@ -50,12 +50,15 @@ public class CatProcessingService : ICatProcessingService
         return response;
     }
 
-    public async Task<IEnumerable<CatResponse>> GetAll(int page, int pageSize, string? tag)
+    public async Task<IEnumerable<CatResponse>> GetAll(int? page, int? pageSize, string? tag)
     {
+        page = page ?? 1;
+        pageSize = pageSize ?? 25;
+
         var query = _context.Cat
             .Include(c => c.Tags)
-            .Skip(pageSize * (page - 1))
-            .Take(pageSize);
+            .Skip((int)pageSize * ((int)page - 1))
+            .Take((int)pageSize);
 
         if (!string.IsNullOrWhiteSpace(tag))
         {
