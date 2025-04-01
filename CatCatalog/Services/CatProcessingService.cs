@@ -84,53 +84,45 @@ public class CatProcessingService : ICatProcessingService
 
     public async Task FetchImages()
     {
-        try
+        var webCats = await _catWebClientService.FetchCatImagesAsync(25);
+
+        var createdDate = DateTime.UtcNow;
+        var distinctTags = GetDistinctLowercaseTags(webCats);
+        await AddTagsIfNotExist(distinctTags, createdDate);
+
+        foreach (var cat in webCats)
         {
-            var webCats = await _catWebClientService.FetchCatImagesAsync(25);
+            var catTags = GetTags(cat.Breeds);
 
-            var createdDate = DateTime.UtcNow;
-            var distinctTags = GetDistinctLowercaseTags(webCats);
-            await AddTagsIfNotExist(distinctTags, createdDate);
+            var dbCat = await _context.Cat
+                .Include(b => b.Tags)
+                .SingleOrDefaultAsync(b => b.CatId == cat.ImageId);
 
-            foreach (var cat in webCats)
+            if (dbCat is null)
             {
-                var catTags = GetTags(cat.Breeds);
+                string blobUrl = await _blobStorageService.DownloadAndUploadImageAsync(cat.ImageUrl, "images", cat.ImageId + ".jpg");
 
-                var dbCat = await _context.Cat
-                    .Include(b => b.Tags)
-                    .SingleOrDefaultAsync(b => b.CatId == cat.ImageId);
-
-                if (dbCat is null)
+                var newCat = new Models.Cat
                 {
-                    string blobUrl = await _blobStorageService.DownloadAndUploadImageAsync(cat.ImageUrl, "images", cat.ImageId + ".jpg");
+                    CatId = cat.ImageId,
+                    Height = cat.Height,
+                    Width = cat.Width,
+                    Image = blobUrl,
+                    Created = createdDate
+                };
 
-                    var newCat = new Models.Cat
-                    {
-                        CatId = cat.ImageId,
-                        Height = cat.Height,
-                        Width = cat.Width,
-                        Image = blobUrl,
-                        Created = createdDate
-                    };
-
-                    foreach (var tag in catTags)
-                    {
-                        var lowerCaseTag = distinctTags.Single(b => b == tag.ToLower());
-                        var dbTag = _context.Tag.Single(b => b.Name == lowerCaseTag);
-                        newCat.Tags.Add(dbTag);
-                    }
-
-                    _context.Cat.Add(newCat);
+                foreach (var tag in catTags)
+                {
+                    var lowerCaseTag = distinctTags.Single(b => b == tag.ToLower());
+                    var dbTag = _context.Tag.Single(b => b.Name == lowerCaseTag);
+                    newCat.Tags.Add(dbTag);
                 }
 
+                _context.Cat.Add(newCat);
             }
-            await _context.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException(ex.Message);
-        }
 
+        }
+        await _context.SaveChangesAsync();
     }
 
     private async Task AddTagsIfNotExist(List<string> tags, DateTime createdDate)
@@ -146,21 +138,6 @@ public class CatProcessingService : ICatProcessingService
         _context.Tag.AddRange(missingTags.Select(b => new Tag { Name = b, Created = createdDate }));
 
         await _context.SaveChangesAsync();
-    }
-
-    private List<string> GetDistinctTags(List<CatFromWebDTO> cats)
-    {
-        var catTags = new List<string>();
-        foreach (var cat in cats)
-        {
-            var tags = GetTags(cat.Breeds);
-            catTags.AddRange(tags);
-        }
-
-        return catTags
-            .GroupBy(n => n, StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
-            .ToList();
     }
 
     private List<string> GetDistinctLowercaseTags(List<CatFromWebDTO> cats)
