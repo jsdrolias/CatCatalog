@@ -72,6 +72,7 @@ builder.Services.AddHttpClient<ICatWebClientService, CatWebClientService>();
 builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddHttpClient<BlobStorageService>();
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 
 builder.Services.AddHostedService<JobProcessorService>();
 

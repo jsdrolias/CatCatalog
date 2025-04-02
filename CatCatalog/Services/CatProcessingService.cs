@@ -11,13 +11,13 @@ public class CatProcessingService : ICatProcessingService
 {
     private readonly ICatWebClientService _catWebClientService;
     private readonly CatDbContext _context;
-    private readonly BlobStorageService _blobStorageService;
+    private readonly IBlobStorageService _blobStorageService;
     private readonly ILogger<CatProcessingService> _logger;
 
     public CatProcessingService(
         ICatWebClientService catWebClientService,
         CatDbContext catDbContext,
-        BlobStorageService blobStorageService,
+        IBlobStorageService blobStorageService,
         ILogger<CatProcessingService> logger)
     {
         _catWebClientService = catWebClientService;
@@ -97,9 +97,9 @@ public class CatProcessingService : ICatProcessingService
         {
             var catTags = GetTags(cat.Breeds);
 
-            var dbCat = await _context.Cat
+            var dbCat = _context.Cat
                 .Include(b => b.Tags)
-                .SingleOrDefaultAsync(b => b.CatId == cat.ImageId);
+                .SingleOrDefault(b => b.CatId == cat.ImageId);
 
             if (dbCat is null)
             {
@@ -125,14 +125,18 @@ public class CatProcessingService : ICatProcessingService
             }
 
         }
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
     }
 
     private async Task AddTagsIfNotExist(List<string> tags, DateTime createdDate)
     {
-        var existingTags = await _context.Tag
+        if (tags.Count == 0)
+        {
+            return;
+        }
+        var existingTags = _context.Tag
             .Where(b => tags.Contains(b.Name))
-            .ToListAsync();
+            .ToList();
 
         var missingTags = tags
             .Where(b => !existingTags.Select(b => b.Name).Contains(b))
@@ -149,7 +153,10 @@ public class CatProcessingService : ICatProcessingService
         foreach (var cat in cats)
         {
             var tags = GetTags(cat.Breeds);
-            catTags.AddRange(tags);
+            if (tags.Count() > 0)
+            {
+                catTags.AddRange(tags);
+            }
         }
 
         return catTags
@@ -160,7 +167,12 @@ public class CatProcessingService : ICatProcessingService
 
     private string[] GetTags(List<BreedFromWebDTO> breeds)
     {
-        var temperaments = string.Join(",", breeds.Select(b => b.Temperament));
+        var breadTemperament = breeds.Select(b => b.Temperament);
+        if (!breadTemperament.Any())
+        {
+            return Array.Empty<string>();
+        }
+        var temperaments = string.Join(",", breadTemperament);
         var temperamentArray = temperaments.Split(",");
         return temperamentArray.Select(b => b.TrimStart().TrimEnd()).ToArray();
     }

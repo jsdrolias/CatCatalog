@@ -1,11 +1,12 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using CatCatalog.Abstractions;
 using CatCatalog.Options;
 using Microsoft.Extensions.Options;
 
 namespace CatCatalog.Services;
 
-public class BlobStorageService
+public class BlobStorageService : IBlobStorageService
 {
     private readonly BlobServiceClient _blobServiceClient;
     private readonly HttpClient _httpClient;

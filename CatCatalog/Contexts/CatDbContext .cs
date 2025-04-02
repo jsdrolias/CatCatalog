@@ -1,23 +1,27 @@
 ﻿using CatCatalog.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 namespace CatCatalog.Contexts;
 
 public class CatDbContext : DbContext
 {
-    private readonly IConfiguration _configuration;
+    public CatDbContext()
+        : base()
+    {
 
-    public CatDbContext(DbContextOptions<CatDbContext> options, IConfiguration configuration)
+    }
+
+    public CatDbContext(DbContextOptions<CatDbContext> options)
         : base(options)
     {
-        _configuration = configuration;
+
     }
-    public DbSet<Cat> Cat { get; set; }
 
-    public DbSet<Tag> Tag { get; set; }
+    public virtual DbSet<Cat> Cat { get; set; }
 
-    public DbSet<Job> Job { get; set; }
+    public virtual DbSet<Tag> Tag { get; set; }
+
+    public virtual DbSet<Job> Job { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
