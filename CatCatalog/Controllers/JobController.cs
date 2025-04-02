@@ -22,7 +22,7 @@ namespace CatCatalog.Controllers
         [SwaggerResponse(200)]
         [SwaggerResponse(404)]
         public async Task<ActionResult<JobResponse>> GetJobById(
-            [SwaggerParameter("Job id")][FromQuery] int id)
+            [SwaggerParameter("Job id")][FromRoute] int id)
         {
             var job = await _jobService.GetById(id);
 

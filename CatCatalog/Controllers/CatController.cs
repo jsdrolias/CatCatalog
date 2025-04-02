@@ -1,8 +1,6 @@
 using CatCatalog.Abstractions;
-using CatCatalog.Models;
 using CatCatalog.Resources;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CatCatalog.Controllers
@@ -40,7 +38,7 @@ namespace CatCatalog.Controllers
         [SwaggerResponse(200)]
         [SwaggerResponse(404)]
         public async Task<ActionResult<CatResponse>> GetCatById(
-            [SwaggerParameter("Cat id")][FromQuery] int id)
+            [SwaggerParameter("Cat id")][FromRoute] int id)
         {
             var cat = await _catProcessingService.GetById(id);
 
@@ -58,7 +56,7 @@ namespace CatCatalog.Controllers
         [SwaggerOperation(Summary = "Get all cats", Description = "Retrieves a list of all available cats.")]
         [SwaggerResponse(200)]
         public async Task<ActionResult<IEnumerable<CatResponse>>> GetAll(
-            [SwaggerParameter("Page number")] [FromQuery] int? page,
+            [SwaggerParameter("Page number")][FromQuery] int? page,
             [SwaggerParameter("Page size")][FromQuery] int? pageSize,
             [SwaggerParameter("Cat tag filter (case insensitive)")][FromQuery] string? tag)
         {
