@@ -60,8 +60,15 @@ namespace CatCatalog.Controllers
             [SwaggerParameter("Page size")][FromQuery] int? pageSize,
             [SwaggerParameter("Cat tag filter (case insensitive)")][FromQuery] string? tag)
         {
-            var cats = await _catProcessingService.GetAll(page, pageSize, tag);
-            return Ok(cats);
+            try
+            {
+                var cats = await _catProcessingService.GetAll(page, pageSize, tag);
+                return Ok(cats);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

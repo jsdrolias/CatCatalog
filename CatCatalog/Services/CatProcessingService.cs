@@ -52,6 +52,15 @@ public class CatProcessingService : ICatProcessingService
 
     public async Task<IEnumerable<CatResponse>> GetAll(int? page, int? pageSize, string? tag)
     {
+        if ((page is not null) && (page < 1))
+        {
+            throw new InvalidOperationException("Page number cannot be less than 1");
+        }
+        if ((pageSize is not null) && (pageSize < 1))
+        {
+            throw new InvalidOperationException("Page size cannot be less than 1");
+        }
+
         page = page ?? 1;
         pageSize = pageSize ?? 25;
 
@@ -63,7 +72,7 @@ public class CatProcessingService : ICatProcessingService
         if (!string.IsNullOrWhiteSpace(tag))
         {
             query = query
-                .Where(b => b.Tags.Exists(b => b.Name == tag));
+                .Where(b => b.Tags.Select(b => b.Name).Contains(tag));
         }
 
         query = query
