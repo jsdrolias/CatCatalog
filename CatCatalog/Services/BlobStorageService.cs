@@ -20,10 +20,10 @@ public class BlobStorageService
         _httpClient = httpClient;
     }
 
-    public async Task<string> DownloadAndUploadImageAsync(string imageUrl, string containerName, string blobName)
+    public async Task<string> DownloadAndUploadImageAsync(string imageUrl, string blobName)
     {
         // Ensure container exists
-        var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_options.ContainerName);
         await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
         // Download the image from the given URL

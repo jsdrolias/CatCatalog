@@ -103,7 +103,7 @@ public class CatProcessingService : ICatProcessingService
 
             if (dbCat is null)
             {
-                string blobUrl = await _blobStorageService.DownloadAndUploadImageAsync(cat.ImageUrl, "images", cat.ImageId + ".jpg");
+                string blobUrl = await _blobStorageService.DownloadAndUploadImageAsync(cat.ImageUrl, cat.ImageId + ".jpg");
 
                 var newCat = new Models.Cat
                 {
