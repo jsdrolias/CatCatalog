@@ -5,6 +5,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace CatCatalog.Controllers
 {
+    /// <summary>
+    /// Job endpoints.
+    /// </summary>
     [ApiController]
     [Route("api/jobs")]
     public class JobController : ControllerBase

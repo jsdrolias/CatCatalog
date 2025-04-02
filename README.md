@@ -20,6 +20,7 @@ Select docker-compose as startup project.
 Begin debugging the application in visual studio.
 
 NOTE:
+1.
 Downloaded images are stored in azurite.
 Can be accessed with Azure Storage Explorer.
 In addition, they can be navigated to with a web browser, if the container is up and running.
@@ -27,6 +28,12 @@ However, in that case, localhost must be used instead of docker base url.
 e.g.
 in database there is the value: http://host.docker.internal:10000/devstoreaccount1/cat-images/KWVenr3Pq.jpg
 use in a web browser: http://localhost:10000/devstoreaccount1/cat-images/KWVenr3Pq.jpg
+
+2. 
+Database can be accessed by management studio
+server: localhost,1433
+user: sa
+pwd: YourPassword123!
 
 --------------------------------------------------------------------------------------------------
 ---UNIT TESTS

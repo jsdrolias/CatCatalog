@@ -6,7 +6,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace CatCatalog.Controllers
 {
     /// <summary>
-    /// Cat endponits.
+    /// Cat endpoints.
     /// </summary>
     [ApiController]
     [Route("api/cats")]
